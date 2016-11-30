@@ -1,0 +1,16 @@
+PODS:
+  - MVZPopoverView (0.0.1)
+
+DEPENDENCIES:
+  - MVZPopoverView (from `../`)
+
+EXTERNAL SOURCES:
+  MVZPopoverView:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  MVZPopoverView: e3b99347f10a94676796681e799f1a61dd5ab1ec
+
+PODFILE CHECKSUM: 8c4ea92ddb4ae4f5727ee247da514b54427dccfa
+
+COCOAPODS: 1.1.1
