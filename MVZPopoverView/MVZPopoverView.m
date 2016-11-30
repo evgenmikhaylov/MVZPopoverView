@@ -37,7 +37,7 @@
         self.contentInsets = UIEdgeInsetsMake(20.0f, 20.0f, 20.0f, 20.0f);
         self.containerInsets = UIEdgeInsetsMake(10.0f, 10.0f, 10.0f, 10.0f);
         self.shadowOffset = CGSizeMake(0.0f, 0.0f);
-        self.shadowBlur = 5.0f;
+        self.shadowRadius = 5.0f;
         self.shadowColor = [UIColor blackColor];
         self.cornerRadius = 10.0f;
         self.preferedTriangleOffset = 0.0f;
@@ -60,6 +60,7 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.layer.path = [self calculatePopoverPath];
+    self.layer.shadowPath = self.layer.path;
     self.contentView.frame = [self calculateContentRect];
 }
 
@@ -92,17 +93,22 @@
 
 - (void)setShadowOffset:(CGSize)shadowOffset {
     _shadowOffset = shadowOffset;
-    [self setNeedsLayout];
+    self.layer.shadowOffset = _shadowOffset;
 }
 
-- (void)setShadowBlur:(CGFloat)shadowBlur {
-    _shadowBlur = shadowBlur;
-    [self setNeedsLayout];
+- (void)setShadowOpacity:(CGFloat)shadowOpacity {
+    _shadowOpacity = shadowOpacity;
+    self.layer.shadowOpacity = _shadowOpacity;
+}
+
+- (void)setShadowRadius:(CGFloat)shadowRadius {
+    _shadowRadius = shadowRadius;
+    self.layer.shadowRadius = _shadowRadius;
 }
 
 - (void)setShadowColor:(UIColor *)shadowColor {
-    _shadowColor = shadowColor;
-    [self setNeedsLayout];
+    _shadowColor = shadowColor;    
+    self.layer.shadowColor = _shadowColor.CGColor;
 }
 
 - (void)setPreferedTriangleOffset:(CGFloat)preferedTriangleOffset {
@@ -224,10 +230,10 @@
             
         case MVZPopoverViewTriangleSideTop:
         case MVZPopoverViewTriangleSideBottom: {
-            CGFloat verticalOffset = self.shadowBlur;
+            CGFloat verticalOffset = self.shadowRadius;
             CGFloat recalculatedMaxHeight = CGRectGetHeight(self.containerView.frame) - location.y - self.containerInsets.bottom;
             if (self.triangleSide == MVZPopoverViewTriangleSideBottom) {
-                verticalOffset = height - self.shadowBlur;
+                verticalOffset = height - self.shadowRadius;
                 recalculatedMaxHeight = location.y - self.containerInsets.top;
             }
             rect = (CGRect){
@@ -275,10 +281,10 @@
             
         case MVZPopoverViewTriangleSideLeft:
         case MVZPopoverViewTriangleSideRight: {
-            CGFloat horizontalOffset = self.shadowBlur;
+            CGFloat horizontalOffset = self.shadowRadius;
             CGFloat recalculatedMaxWidth = CGRectGetWidth(self.containerView.frame) - location.x - self.containerInsets.right;
             if (self.triangleSide == MVZPopoverViewTriangleSideRight) {
-                horizontalOffset = width - self.shadowBlur;
+                horizontalOffset = width - self.shadowRadius;
                 recalculatedMaxWidth = location.x - self.containerInsets.left;
             }
             rect = (CGRect){
@@ -648,10 +654,10 @@
 
 - (UIEdgeInsets)calculatePopoverInsets {
     UIEdgeInsets insets = (UIEdgeInsets){
-        .top = self.shadowBlur,
-        .left = self.shadowBlur,
-        .bottom = self.shadowBlur,
-        .right = self.shadowBlur,
+        .top = self.shadowRadius,
+        .left = self.shadowRadius,
+        .bottom = self.shadowRadius,
+        .right = self.shadowRadius,
     };
     switch (self.triangleSide) {
         case MVZPopoverViewTriangleSideTop:

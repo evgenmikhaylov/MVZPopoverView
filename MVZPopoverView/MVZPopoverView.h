@@ -35,8 +35,9 @@ typedef NS_ENUM(NSUInteger, MVZPopoverViewTriangleSide) {
 @property (nonatomic) CGFloat borderWidth;
 @property (nonatomic) UIColor *borderColor;
 
+@property (nonatomic) CGFloat shadowOpacity;
+@property (nonatomic) CGFloat shadowRadius;
 @property (nonatomic) CGSize shadowOffset;
-@property (nonatomic) CGFloat shadowBlur;
 @property (nonatomic) UIColor *shadowColor;
 
 @property (nonatomic) CGSize triangleSize;
