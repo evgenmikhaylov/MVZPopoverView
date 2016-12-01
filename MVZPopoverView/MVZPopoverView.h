@@ -15,6 +15,11 @@ typedef NS_ENUM(NSUInteger, MVZPopoverViewTriangleSide) {
     MVZPopoverViewTriangleSideRight
 };
 
+typedef NS_ENUM(NSUInteger, MVZPopoverViewTriangleType) {
+    MVZPopoverViewTriangleTypeDefault,
+    MVZPopoverViewTriangleTypeRounded,
+};
+
 @class MVZPopoverView;
 
 @protocol MVZPopoverViewDelegate <NSObject>
@@ -43,6 +48,7 @@ typedef NS_ENUM(NSUInteger, MVZPopoverViewTriangleSide) {
 @property (nonatomic) CGSize triangleSize;
 @property (nonatomic) CGFloat preferedTriangleOffset;
 @property (nonatomic) MVZPopoverViewTriangleSide preferedTriangleSide;
+@property (nonatomic) MVZPopoverViewTriangleType triangleType;
 
 @property (nonatomic) UIEdgeInsets contentInsets;
 @property (nonatomic) CGSize preferedContentSize;

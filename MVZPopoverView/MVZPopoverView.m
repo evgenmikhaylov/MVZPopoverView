@@ -43,6 +43,7 @@
         self.preferedTriangleOffset = 0.0f;
         self.triangleSize = CGSizeMake(20.0f, 10.0f);
         self.preferedTriangleSide = MVZPopoverViewTriangleSideBottom;
+        self.triangleType = MVZPopoverViewTriangleTypeDefault;
     }
     return self;
 }
@@ -377,12 +378,12 @@
     CGFloat bottomLeftCornerRadius = self.cornerRadius;
     CGFloat bottomRightCornerRadius = self.cornerRadius;
     
-    CGMutablePathRef popoverPathRef = CGPathCreateMutable();
+    CGMutablePathRef popoverPath = CGPathCreateMutable();
     
-    NSMutableArray *topTrianglePoints = [[NSMutableArray alloc] init];
-    NSMutableArray *rightTrianglePoints = [[NSMutableArray alloc] init];
-    NSMutableArray *bottomTrianglePoints = [[NSMutableArray alloc] init];
-    NSMutableArray *leftTrianglePoints = [[NSMutableArray alloc] init];
+    NSMutableArray<NSValue *> *topTrianglePoints = [[NSMutableArray alloc] init];
+    NSMutableArray<NSValue *> *rightTrianglePoints = [[NSMutableArray alloc] init];
+    NSMutableArray<NSValue *> *bottomTrianglePoints = [[NSMutableArray alloc] init];
+    NSMutableArray<NSValue *> *leftTrianglePoints = [[NSMutableArray alloc] init];
     
     if (self.triangleSide != MVZPopoverViewTriangleSideNone) {
         
@@ -551,49 +552,114 @@
         .y = CGRectGetMaxY(popoverRect) - bottomLeftCornerRadius,
     };
     
-    NSMutableArray<NSValue *> *topPoints = [[NSMutableArray alloc] init];
-    [topPoints addObject:[NSValue valueWithCGPoint:pointTopLeft3]];
-    [topPoints addObjectsFromArray:topTrianglePoints];
-    [topPoints addObject:[NSValue valueWithCGPoint:pointTopRight1]];
+    CGPathMoveToPoint(popoverPath, NULL, pointTopLeft3.x, pointTopLeft3.y);
+    [self addTrianglePoints:topTrianglePoints toPath:popoverPath];
+    CGPathAddLineToPoint(popoverPath, NULL, pointTopRight1.x, pointTopRight1.y);
+    CGPathAddArc(popoverPath, NULL, pointTopRight2.x, pointTopRight2.y, topRightCornerRadius, -M_PI_2, 0.0f, NO);
     
-    NSMutableArray<NSValue *> *rightPoints = [[NSMutableArray alloc] init];
-    [rightPoints addObject:[NSValue valueWithCGPoint:pointTopRight3]];
-    [rightPoints addObjectsFromArray:rightTrianglePoints];
-    [rightPoints addObject:[NSValue valueWithCGPoint:pointBottomRight1]];
+    CGPathAddLineToPoint(popoverPath, NULL, pointTopRight3.x, pointTopRight3.y);
+    [self addTrianglePoints:rightTrianglePoints toPath:popoverPath];
+    CGPathAddLineToPoint(popoverPath, NULL, pointBottomRight1.x, pointBottomRight1.y);
+    CGPathAddArc(popoverPath, NULL, pointBottomRight2.x, pointBottomRight2.y, bottomRightCornerRadius, 0.0f, M_PI_2, NO);
     
-    NSMutableArray<NSValue *> *bottomPoints = [[NSMutableArray alloc] init];
-    [bottomPoints addObject:[NSValue valueWithCGPoint:pointBottomRight3]];
-    [bottomPoints addObjectsFromArray:bottomTrianglePoints];
-    [bottomPoints addObject:[NSValue valueWithCGPoint:pointBottomLeft1]];
+    CGPathAddLineToPoint(popoverPath, NULL, pointBottomRight3.x, pointBottomRight3.y);
+    [self addTrianglePoints:bottomTrianglePoints toPath:popoverPath];
+    CGPathAddLineToPoint(popoverPath, NULL, pointBottomLeft1.x, pointBottomLeft1.y);
+    CGPathAddArc(popoverPath, NULL, pointBottomLeft2.x, pointBottomLeft2.y, bottomLeftCornerRadius, M_PI_2, M_PI, NO);
     
-    NSMutableArray<NSValue *> *leftPoints = [[NSMutableArray alloc] init];
-    [leftPoints addObject:[NSValue valueWithCGPoint:pointBottomLeft3]];
-    [leftPoints addObjectsFromArray:leftTrianglePoints];
-    [leftPoints addObject:[NSValue valueWithCGPoint:pointTopLeft1]];
+    CGPathAddLineToPoint(popoverPath, NULL, pointBottomLeft3.x, pointBottomLeft3.y);
+    [self addTrianglePoints:leftTrianglePoints toPath:popoverPath];
+    CGPathAddLineToPoint(popoverPath, NULL, pointTopLeft1.x, pointTopLeft1.y);
+    CGPathAddArc(popoverPath, NULL, pointTopLeft2.x, pointTopLeft2.y, topLeftCornerRadius, M_PI, 3*M_PI_2, NO);
     
-    CGPathMoveToPoint(popoverPathRef, NULL, topPoints.firstObject.CGPointValue.x, topPoints.firstObject.CGPointValue.y);
-    for (NSValue *pointValue in topPoints) {
-        CGPoint point = pointValue.CGPointValue;
-        CGPathAddLineToPoint(popoverPathRef, NULL, point.x, point.y);
+    return popoverPath;
+}
+
+- (void)addTrianglePoints:(NSArray<NSValue *> *)points toPath:(CGPathRef)path {
+    switch (self.triangleType) {
+        case MVZPopoverViewTriangleTypeDefault:     [self addDefaultTrianglePoints:points toPath:path];     break;
+        case MVZPopoverViewTriangleTypeRounded:     [self addRoundedTrianglePoints:points toPath:path];     break;
     }
-    CGPathAddArc(popoverPathRef, NULL, pointTopRight2.x, pointTopRight2.y, topRightCornerRadius, -M_PI_2, 0.0f, NO);
-    for (NSValue *pointValue in rightPoints) {
-        CGPoint point = pointValue.CGPointValue;
-        CGPathAddLineToPoint(popoverPathRef, NULL, point.x, point.y);
+}
+
+- (void)addDefaultTrianglePoints:(NSArray<NSValue *> *)points toPath:(CGPathRef)path {
+    if (points.count != 3) {
+        return;
     }
-    CGPathAddArc(popoverPathRef, NULL, pointBottomRight2.x, pointBottomRight2.y, bottomRightCornerRadius, 0.0f, M_PI_2, NO);
-    for (NSValue *pointValue in bottomPoints) {
-        CGPoint point = pointValue.CGPointValue;
-        CGPathAddLineToPoint(popoverPathRef, NULL, point.x, point.y);
+    CGPoint point1 = points[0].CGPointValue;
+    CGPoint point2 = points[1].CGPointValue;
+    CGPoint point3 = points[2].CGPointValue;
+    CGPathAddLineToPoint(path, NULL, point1.x, point1.y);
+    CGPathAddLineToPoint(path, NULL, point2.x, point2.y);
+    CGPathAddLineToPoint(path, NULL, point3.x, point3.y);
+}
+
+- (void)addRoundedTrianglePoints:(NSArray<NSValue *> *)points toPath:(CGPathRef)path {
+    if (points.count != 3) {
+        return;
     }
-    CGPathAddArc(popoverPathRef, NULL, pointBottomLeft2.x, pointBottomLeft2.y, bottomLeftCornerRadius, M_PI_2, M_PI, NO);
-    for (NSValue *pointValue in leftPoints) {
-        CGPoint point = pointValue.CGPointValue;
-        CGPathAddLineToPoint(popoverPathRef, NULL, point.x, point.y);
+    CGPoint p1 = points[0].CGPointValue;
+    CGPoint p2 = points[1].CGPointValue;
+    CGPoint p3 = points[2].CGPointValue;
+    CGPathAddLineToPoint(path, NULL, p1.x, p1.y);
+
+    switch (self.triangleSide) {
+        case MVZPopoverViewTriangleSideTop: {
+            [self addArcFromPoint:p1 toPoint:p2 toPath:path reverse:NO];
+            [self addArcFromPoint:p2 toPoint:p3 toPath:path reverse:YES];
+        }
+            break;
+        case MVZPopoverViewTriangleSideRight: {
+            [self addArcFromPoint:p1 toPoint:p2 toPath:path reverse:YES];
+            [self addArcFromPoint:p2 toPoint:p3 toPath:path reverse:YES];
+        }
+            break;
+        case MVZPopoverViewTriangleSideBottom: {
+            [self addArcFromPoint:p1 toPoint:p2 toPath:path reverse:YES];
+            [self addArcFromPoint:p2 toPoint:p3 toPath:path reverse:NO];
+        }
+            break;
+        case MVZPopoverViewTriangleSideLeft: {
+            [self addArcFromPoint:p1 toPoint:p2 toPath:path reverse:NO];
+            [self addArcFromPoint:p2 toPoint:p3 toPath:path reverse:NO];
+        }
+            break;
+        default:
+            break;
     }
-    CGPathAddArc(popoverPathRef, NULL, pointTopLeft2.x, pointTopLeft2.y, topLeftCornerRadius, M_PI, 3*M_PI_2, NO);
+}
+
+- (void)addArcFromPoint:(CGPoint)p1 toPoint:(CGPoint)p2 toPath:(CGPathRef)path reverse:(BOOL)reverse{    
+    CGFloat p1p2 = sqrt(pow(p2.x - p1.x, 2.0) + pow(p2.y - p1.y, 2.0));
+    CGFloat a = p1p2 / 2.0;
+    CGFloat b = 2.0 * a;
+    CGFloat d = sqrt(pow(a, 2.0) + pow(b, 2.0));
+
+    CGFloat alpha2 = acos(a / d);
+    CGFloat alpha1 = acos((p2.x - p1.x) / (2.0 * a));
+    CGFloat alpha3 = M_PI - alpha2 - alpha1;
     
-    return popoverPathRef;
+    CGFloat angle = 2.0 * (M_PI_2 - alpha2);
+    CGFloat alpha4 = M_PI - M_PI_2 - alpha3;
+    CGFloat startAngle = M_PI_2 - alpha4 - angle;
+    
+    CGFloat x12, y12;
+    CGFloat fromAngle, toAngle;
+    if (reverse) {
+        x12 = p2.x + d * cos(alpha3);
+        y12 = p2.y - d * sin(alpha3);
+        fromAngle = M_PI - startAngle;
+        toAngle = M_PI - startAngle - angle;
+    }
+    else {
+        x12 = p1.x - d * cos(alpha3);
+        y12 = p1.y - d * sin(alpha3);
+        fromAngle = startAngle + angle;
+        toAngle = startAngle;
+    }
+    CGPoint p12 = (CGPoint){.x = x12, .y = y12};
+    CGFloat raduis = sqrt(pow(p2.x - p12.x, 2.0) + pow(p2.y - p12.y, 2.0));
+    CGPathAddArc(path, NULL, p12.x, p12.y, raduis, fromAngle, toAngle, YES);
 }
 
 - (CGRect)calculateTriangleRect {

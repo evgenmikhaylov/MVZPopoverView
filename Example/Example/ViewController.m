@@ -110,14 +110,16 @@
             [self.popoverView removeFromSuperview];
             
             MVZPopoverView *popoverView = [[MVZPopoverView alloc] init];
-            popoverView.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:1.0];
+            popoverView.backgroundColor = [UIColor whiteColor];
             popoverView.contentInsets = UIEdgeInsetsMake(5.0, 5.0, 5.0, 5.0);
             popoverView.containerInsets = UIEdgeInsetsMake(10.0, 10.0, 10.0, 10.0);
-            popoverView.shadowColor = [[UIColor blackColor] colorWithAlphaComponent:1.0f];
-            popoverView.shadowRadius = 3.0f;
-            popoverView.shadowOpacity = 1.0f;
+            popoverView.shadowColor = [UIColor blackColor];
+            popoverView.shadowRadius = 8.0f;
+            popoverView.shadowOpacity = 0.15f;
+            popoverView.borderColor = [UIColor lightGrayColor];
+            popoverView.borderWidth = 1.0;
             popoverView.cornerRadius = 4.0f;
-            popoverView.triangleSize = CGSizeMake(22.0f, 8.0f);
+            popoverView.triangleSize = CGSizeMake(30.0f, 15.0f);
             popoverView.preferedTriangleOffset = 0.5f;
             popoverView.preferedContentSize = [label sizeThatFits:(CGSize) {
                 .width = 200.0,
